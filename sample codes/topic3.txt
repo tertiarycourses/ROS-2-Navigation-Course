@@ -1,0 +1,122 @@
+# Setup Rapsberry Pi
+
+## Log in with default username(ubuntu) and password(ubuntu). After logged in, system will ask you to change the password..
+
+## Open automatic update setting file
+ 	$ sudo nano /etc/apt/apt.conf.d/20auto-upgrades
+
+## Edit to disable automatic update settings as below.
+APT::Periodic::Update-Package-Lists "0";
+APT::Periodic::Unattended-Upgrade "0";
+
+## Enter below command to configure the WiFi network setting
+$ sudo nano /etc/netplan/50-cloud-init.yaml
+
+## When the editor is opened, append below contents at the end of the file. Replace the WIFI_SSID and WIFI_PASSWORD with your wifi SSID and password.
+
+## Apply all configuration for the renderers, and then reboot the Raspberry Pi.
+$ sudo netplan apply
+$ reboot
+
+## Configure Raspberry Pi 3
+
+### Set the systemd to prevent boot-up delay even if there is no network at startup. Run the command below to set mask the systemd process using the following command.
+$ systemctl mask systemd-networkd-wait-online.service
+Disable Suspend and Hibernation
+$ sudo systemctl mask sleep.target suspend.target hibernate.target 
+hybrid-sleep.target
+Install and enable the SSH
+$ sudo apt install ssh
+$ sudo systemctl enable --now ssh
+$ reboot
+After rebooting the Raspberry Pi, if you wish to work from the Remote PC using SSH, use below command from the remote PC terminal. The default password is ubuntu.
+	$ ssh ubuntu@{IP Address of Raspberry PI}
+
+## Setup RPi 3 - Add Swap Space
+
+### Enter the command below to create 2GB swap space
+$ sudo swapoff /swapfile
+$ sudo fallocate -l 2G /swapfile
+$ sudo chmod 600 /swapfile
+$ sudo mkswap /swapfile
+$ sudo swapon /swapfile
+$ sudo nano /etc/fstab
+When the editor opens the fstab file, append below contents at the end of the file.
+/swapfile swap swap defaults 0 0
+Check if 2GB of swap space is correctly configured
+	sudo free -h
+
+## Setup RPi 3 - Install ROS Foxy
+
+### Open a terminal on SBC, Update and upgrade your software
+$ sudo apt update && sudo apt upgrade
+Setup locale
+$ sudo locale-gen en_US en_US.UTF-8
+$ sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+$ export LANG=en_US.UTF-8
+Setup sources
+$ sudo apt update && sudo apt install curl gnupg2 lsb-release
+$ curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+$ sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
+Install ROS 2 packages
+$ sudo apt update
+$ sudo apt install ros-foxy-ros-base
+
+## Setup RPi 3 - Install ROS Packages
+
+$ sudo apt install python3-argcomplete python3-colcon-common-extensions libboost-system-dev build-essential
+$ sudo apt install ros-foxy-hls-lfcd-lds-driver
+$ sudo apt install ros-foxy-turtlebot3-msgs
+$ sudo apt install ros-foxy-dynamixel-sdk
+$ mkdir -p ~/turtlebot3_ws/src && cd ~/turtlebot3_ws/src
+$ git clone -b foxy-devel https://github.com/ROBOTIS-GIT/turtlebot3.git
+$ cd ~/turtlebot3_ws/src/turtlebot3
+$ rm -r turtlebot3_cartographer turtlebot3_navigation2
+$ cd ~/turtlebot3_ws/
+$ echo 'source /opt/ros/foxy/setup.bash' >> ~/.bashrc
+$ source ~/.bashrc
+$ colcon build --symlink-install --parallel-workers 1
+$ echo 'source ~/turtlebot3_ws/install/setup.bash' >> ~/.bashrc
+$ source ~/.bashrc
+
+## Setup RPi 3 - Environment Setup
+
+### In DDS communication, ROS_DOMAIN_ID must be matched between Remote PC and TurtleBot3 for wireless communication under the same network environment. Following commands shows how to assign a ROS_DOMAIN_ID to SBC in TurtleBot3.
+A default ID of TurtleBot3 is set as 0.
+To configure the ROS_DOMAIN_ID of Remote PC and SBC in TurtleBot3 to 30 is recommendable.
+Open a terminal on SBC
+Use the following commands.
+
+$ echo 'export ROS_DOMAIN_ID=30 #TURTLEBOT3' >> ~/.bashrc
+$ source ~/.bashrc
+
+
+# Bring Up Turtlebot
+
+[terminal 1]
+$ ssh ubuntu@{IP_ADDRESS_OF_RASPBERRY_PI}
+The default password is ubuntu.
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 launch turtlebot3_bringup robot.launch.py
+[terminal 2]
+$ ros2 launch turtlebot3_bringup rviz2.launch.py
+[terminal 3]
+$ export TURTLEBOT3_MODEL=${TB3_MODEL}
+$ ros2 run turtlebot3_teleop teleop_keyboard
+
+
+# SLAM 
+
+[terminal 5]
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 launch turtlebot3_cartographer cartographer.launch.py
+[terminal 6] 
+$ ros2 run nav2_map_server map_saver_cli -f ~/my_map2
+
+
+# Navigation
+
+[terminal 7]
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 launch turtlebot3_navigation2 navigation2.launch.py map:=$HOME/my_map2.yaml
+

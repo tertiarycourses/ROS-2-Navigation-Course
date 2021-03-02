@@ -1,0 +1,56 @@
+# Activity: Turtlebot3 Burger
+
+# Activity: Virtual SLAM with Gmapping
+
+(terminal 1) 
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+(terminal 2) 
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True
+(terminal 3) 
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 run turtlebot3_teleop teleop_keyboard
+(terminal 4) 
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 run nav2_map_server map_saver_cli -f ~/my_map
+
+
+# Activity: Virtual Navigation
+
+(terminal 1) 
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+(terminal 2)
+$ export TURTLEBOT3_MODEL=burger
+$ ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True map:=$HOME/my_map.yaml
+
+
+# Activity: Challenge
+
+1. Copy all files under “models” folder (i.e. floor_parquest2, maze_1_6x5, etc)
+2. Navigate to Home >> .gazebo (type clt-H to review hidden files) >> models
+3. Paste all copied model files in this folder
+4. Copy all files under “launch” folder (i.e. turtlebot3_maze1.launch, etc)
+5. And navigate to src >> turtlebot3_simulations >> turtlebot3_gazebo >> launch
+6. Paste all copied launch files in this folder
+7  Copy all files under  “world” folder (i.e. maze_1_6x5.world, etc)
+8. And navigate to src >> turtlebot3_simulations >> turtlebot3_gazebo >> worlds
+9. Paste all copied world files in this folder
+
+(terminal 1)
+$ roslaunch turtlebot3_gazebo turtlebot3_maze1.launch
+(terminal 2)
+$ roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
+(terminal 3)
+$ roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+(terminal 4)
+$ rosrun map_server map_saver -f ~/maze1
+
+(terminal 1)
+$ roslaunch turtlebot3_gazebo turtlebot3_maze1.launch
+(terminal 2)
+$ roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/maze1.yaml
+
+
+
