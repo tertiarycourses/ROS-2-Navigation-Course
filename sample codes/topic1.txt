@@ -1,12 +1,21 @@
 
-# Acitivity: Install Turtlebot3 Packages
+# Topic 1
 
-## Install Colcon
+## Install ROS2 on Remote PC
+$ sudo apt update
+$ sudo apt upgrade
+$ wget https://raw.githubusercontent.com/ROBOTIS-GIT/robotis_tools/master/install_ros2_foxy.sh
+$ chmod 755 ./install_ros2_foxy.sh
+$ bash ./install_ros2_foxy.sh
+
+## Install Dependent ROS 2 Packages
+
+### Install Colcon
 $ sudo apt update
 $ sudo apt upgrade
 $ sudo apt install python3-colcon-common-extensions
 
-## Install Gazebo 11 and Gazebo ROS Package
+### Install Gazebo 11 and Gazebo ROS Package
 Method 1
 $ sudo apt install gazebo11 libgazebo11-dev
 Method 2
@@ -14,26 +23,23 @@ $ curl -sSL http://get.gazebosim.org | sh
 
 $ sudo apt install ros-foxy-gazebo-ros-pkgs
 
-## 	Try out Gazebo ROS
+### Try out Gazebo ROS
 $ sudo apt install ros-foxy-ros-core ros-foxy-geometry2
 $ gazebo --verbose /opt/ros/foxy/share/gazebo_plugins/worlds/gazebo_ros_diff_drive_demo.world 
 ros2 topic pub /demo/cmd_demo geometry_msgs/Twist '{linear: {x: 1.0}}' -1
 
-
-## Install Cartographer
-
+### Install Cartographer
 $ sudo apt install ros-foxy-cartographer
 $ sudo apt install ros-foxy-cartographer-ros
 
-## Install Navigation 2
-
+### Install Navigation 2
 $ sudo apt install ros-foxy-navigation2
 $ sudo apt install ros-foxy-nav2-bringup
 
-## Install vcstool
+### Install vcstool
 $ sudo apt install python3-vcstool
 
-## Install the Turtlebot3 packages
+### Install the Turtlebot3 packages
 $ mkdir -p ~/turtlebot3_ws/src
 $ cd ~/turtlebot3_ws
 $ wget https://raw.githubusercontent.com/ROBOTIS-GIT/turtlebot3/ros2/turtlebot3.repos
@@ -47,14 +53,13 @@ $ sudo apt install ros-foxy-dynamixel-sdk
 $ sudo apt install ros-foxy-turtlebot3-msgs
 $ sudo apt install ros-foxy-turtlebot3
 
-## Environment Configuration
+### Environment Configuration
 
 $ echo 'source ~/turtlebot3_ws/install/setup.bash' >> ~/.bashrc
 $ echo 'export ROS_DOMAIN_ID=30 #TURTLEBOT3' >> ~/.bashrc
 $ source ~/.bashrc
 
-
-# Activity: Fake Node Simulation 
+## Activity: Fake Node Simulation 
 
 (terminal 1)
 $ export TURTLEBOT3_MODEL=burger
